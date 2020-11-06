@@ -12,6 +12,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform2.hpp>
 
+//MyHeaders
+#include "cube.h"
+
+
 class CMyApp
 {
 public:
@@ -31,17 +35,22 @@ public:
 	void MouseUp(SDL_MouseButtonEvent&);
 	void MouseWheel(SDL_MouseWheelEvent&);
 	void Resize(int, int);
+
+	void setupShader();
+
+	void renderTransformedCube(const Cube& cube, const glm::mat4& mat);
+	void renderWShape(const glm::mat4& mat = glm::mat4(1.f));
+	void renderComposition(const glm::mat4& mat = glm::mat4(1.f));
+
 protected:
-	// segédfüggvények
-	glm::vec3 GetPos(float u, float v);
+
+	//Objects
+	Cube* cube;
+	const float dPos = 2.5f;
+	const float R = 8.0f;
 
 	// shaderekhez szükséges változók
 	GLuint m_programID; // shaderek programja
-
-	// OpenGL-es dolgok
-	GLuint m_vaoID; // vertex array object erõforrás azonosító
-	GLuint m_vboID; // vertex buffer object erõforrás azonosító
-	GLuint m_ibID;  // index buffer object erõforrás azonosító
 
 	// transzformációs mátrixok
 	glm::mat4 m_matWorld;
@@ -51,14 +60,4 @@ protected:
 	// mátrixok helye a shaderekben
 	GLuint	m_loc_mvp; // a három mátrixunk szorzatát adjuk át a hatékonyság érdekében
 
-	struct Vertex
-	{
-		glm::vec3 p;
-		glm::vec3 c;
-	};
-
-	// NxM darab négyszöggel közelítjük a parametrikus felületünket => (N+1)x(M+1) pontban kell kiértékelni
-	static const int N	= 20;
-	static const int M	= 10;
 };
-
