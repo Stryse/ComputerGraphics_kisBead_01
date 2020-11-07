@@ -1,15 +1,17 @@
 #include "cube.h"
-#include <algorithm>
+#include <iostream>
 
-Cube::Cube() : edgeWidth(1.f),vaoID(0), vboID(0)
+Cube* Cube::instance_ = nullptr;
+
+Cube::Cube() : vaoID(0), vboID(0)
 {
-	GLfloat halfEdge = edgeWidth * 0.5f;
+	GLfloat halfEdge = 0.5f;
+	
 	//SETUP VERTICES
-
 	//POS -- Center is origo (0,0,0)
 	glm::vec3 center(0, 0, 0);
 
-	vertices.resize(8);
+	std::vector<Vertex> vertices(8);
 	vertices[0].pos = { center.x - halfEdge, center.y - halfEdge, center.z + halfEdge }; //Front bottom left
 	vertices[1].pos = { center.x + halfEdge, center.y - halfEdge, center.z + halfEdge }; //Front bottom right
 	vertices[2].pos = { center.x + halfEdge, center.y + halfEdge, center.z + halfEdge }; // Front top right
@@ -19,9 +21,14 @@ Cube::Cube() : edgeWidth(1.f),vaoID(0), vboID(0)
 	vertices[5].pos = { center.x + halfEdge, center.y - halfEdge, center.z - halfEdge }; // Back bottom right
 	vertices[6].pos = { center.x + halfEdge, center.y + halfEdge, center.z - halfEdge }; // Back top right
 	vertices[7].pos = { center.x - halfEdge, center.y + halfEdge, center.z - halfEdge }; // Back top left
+	
+	//COL
+	for (int i = 0; i < vertices.size(); ++i)
+		vertices[i].color = posToCol(vertices[i].pos);
 
-	indices = {
-		//FACES Index buffer
+
+	//FACES Index buffer
+	std::vector<GLushort> indices = {
 		// front face
 		0, 1, 2,
 		2, 3, 0,
@@ -41,10 +48,6 @@ Cube::Cube() : edgeWidth(1.f),vaoID(0), vboID(0)
 		3, 2, 6,
 		6, 7, 3
 	};
-
-	//COL
-	for (int i = 0; i < vertices.size(); ++i)
-		vertices[i].color = posToCol(vertices[i].pos);
 
 	//SETUP VAO & VBO
 	glGenVertexArrays(1, &vaoID);
@@ -77,20 +80,37 @@ Cube::Cube() : edgeWidth(1.f),vaoID(0), vboID(0)
 
 }
 
-Cube::~Cube()
+void Cube::destroy()
 {
-	glDeleteBuffers(1, &vboID);
-	glDeleteBuffers(1, &ibID);
-	glDeleteVertexArrays(1, &vaoID);
+	if (instance_)
+	{
+		glDeleteBuffers(1, &instance_->vboID);
+		glDeleteBuffers(1, &instance_->ibID);
+		glDeleteVertexArrays(1, &instance_->vaoID);
+	}
+	else
+		std::cout << "Tried to delete cube instance but it was null" << std::endl;
+
 }
 
-void Cube::render() const
+Cube* Cube::instance()
 {
-	glBindVertexArray(vaoID);
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, 0);
+	if (!instance_)
+		instance_ = new Cube();
+	return instance_;
+}
 
-	//Disables
-	glBindVertexArray(0);
+void Cube::render(GLuint shaderID)
+{
+	if (instance_)
+	{
+		glUseProgram(shaderID);
+		glBindVertexArray(instance_->vaoID);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
+		glBindVertexArray(0);
+	}
+	else
+		std::cout << "Tried to render cube instance but it wass null" << std::endl;
 }
 
 glm::vec3 Cube::posToCol(const glm::vec3& pos)

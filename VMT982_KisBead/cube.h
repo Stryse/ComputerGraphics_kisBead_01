@@ -16,28 +16,28 @@ private:
 	// Typedefs
 	using Point = glm::vec3;
 
-public:
+private:
 	// CTOR, DTOR
 	Cube();
-	~Cube();
+
+public:
+	//Singleton getter
+	static Cube* instance();
 
 	// Methods
-	glm::vec3 posToCol(const glm::vec3& pos);
-	void render() const;
+	static void render(GLuint shaderID);
+	static void destroy();
 
 private:
-
-	//Props
-	const GLfloat edgeWidth;
-
-	//BUFFERS
-	//Vertex
-	std::vector<Vertex> vertices;
-	//Index
-	std::vector<GLushort> indices;
+	
+	//Singleton data
+	static Cube* instance_;
 
 	//IDs
 	GLuint vaoID;
 	GLuint vboID;
 	GLuint ibID;
+
+	//Private Methods
+	glm::vec3 posToCol(const glm::vec3& pos);
 };

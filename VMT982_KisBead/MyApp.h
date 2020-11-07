@@ -15,6 +15,12 @@
 //MyHeaders
 #include "cube.h"
 
+enum Color {
+	NOCOLOR,
+	RED,
+	GREEN,
+	BLUE
+};
 
 class CMyApp
 {
@@ -36,28 +42,28 @@ public:
 	void MouseWheel(SDL_MouseWheelEvent&);
 	void Resize(int, int);
 
+private:
 	void setupShader();
-
-	void renderTransformedCube(const Cube& cube, const glm::mat4& mat);
-	void renderWShape(const glm::mat4& mat = glm::mat4(1.f));
-	void renderComposition(const glm::mat4& mat = glm::mat4(1.f));
+	void renderTransformedCube(GLuint shaderID, const glm::mat4& mat = glm::mat4(1.f));
+	void renderWShape(GLuint shaderID,const glm::mat4& mat = glm::mat4(1.f));
+	void renderComposition(GLuint shaderID, const glm::mat4& mat = glm::mat4(1.f));
 
 protected:
 
-	//Objects
-	Cube* cube;
-	const float dPos = 2.5f;
-	const float R = 8.0f;
+	const float dPos = 2.5f;  // Half of formation cube edge
+	const float R = 8.0f;	  // Rotation sphere radius
+	GLuint colStartTime;
 
-	// shaderekhez szükséges változók
-	GLuint m_programID; // shaderek programja
+	// IDS
+	GLuint m_programID;
 
-	// transzformációs mátrixok
+	// Matrices
 	glm::mat4 m_matWorld;
 	glm::mat4 m_matView;
 	glm::mat4 m_matProj;
 
-	// mátrixok helye a shaderekben
-	GLuint	m_loc_mvp; // a három mátrixunk szorzatát adjuk át a hatékonyság érdekében
-
+	// Uniforms
+	GLuint m_loc_mvp;
+	GLuint m_loc_alpha;
+	GLuint m_loc_colorFade;
 };
